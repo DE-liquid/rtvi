@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">News</string>
     <string name="base_image_description">dummy desc</string>
+    <string name="error_no_connection">Отсутствует подключение к Интернет, попробуйте позже</string>
+    <string name="error_undefined">Извините, что-то пошло не так.</string>
+    <string name="dialog_ok">OK</string>
 </resources>

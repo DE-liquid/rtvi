@@ -43,7 +43,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
         if (TextUtils.isEmpty(item.getShareLink())) return;
 
         Glide.with(holder.itemView.getContext())
-                .load(item.getShareLink())
+                .load(item.getImagePreview())
                 .bitmapTransform(new CropCircleTransformation(holder.itemView.getContext()))
                 .into(holder.previewIV);
 

@@ -1,11 +1,10 @@
 package com.gmail.bakcina.news;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-
 import com.arellomobile.mvp.MvpAppCompatActivity;
 import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.gmail.bakcina.news.model.Article;
@@ -19,6 +18,7 @@ public class MainActivity extends MvpAppCompatActivity implements MainView, Arti
     @InjectPresenter MainPresenter mainPresenter;
 
     private ProgressDialog progressDialog;
+    AlertDialog errorAlertDialog;
     private ArticleAdapter adapter;
 
     @Override
@@ -31,6 +31,8 @@ public class MainActivity extends MvpAppCompatActivity implements MainView, Arti
         articlesRV.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
+        progressDialog = new ProgressDialog(this);
+
     }
 
     @Override
@@ -40,13 +42,22 @@ public class MainActivity extends MvpAppCompatActivity implements MainView, Arti
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.cancel();
+        }
+        if (errorAlertDialog != null && errorAlertDialog.isShowing()) {
+            errorAlertDialog.cancel();
+        }
+    }
+
+    @Override
     public void showAllArticles(List<Article> data) {
-        Log.d("Valo", "data -> " + data);
         if (data == null) return;
 
         adapter = new ArticleAdapter(data, this);
         articlesRV.setAdapter(adapter);
-
     }
 
     @Override
@@ -58,14 +69,27 @@ public class MainActivity extends MvpAppCompatActivity implements MainView, Arti
         }
     }
 
+    @Override
+    public void showErrorAlert(int messageResId) {
+        errorAlertDialog =
+                new AlertDialog.Builder(this)
+                        .setMessage(messageResId)
+                        .setPositiveButton(R.string.dialog_ok,
+                                (dialogInterface, i) -> dialogInterface.cancel())
+                        .create();
+        errorAlertDialog.show();
+    }
+
     private void showThrobber() {
-        Log.d("Valo", "show throbber");
-        // TODO: 26.08.2017 show loading throbber
+        if (!progressDialog.isShowing()) {
+            progressDialog.show();
+        }
     }
 
     private void hideThrobber() {
-        Log.d("Valo", "hide throbber");
-        // TODO: 26.08.2017 hode throbber
+        if (progressDialog.isShowing()) {
+            progressDialog.cancel();
+        }
     }
 
     @Override
