@@ -16,6 +16,6 @@ public interface RtviApi {
     @GET("newslist")
     Call<List<Article>> getArticles();
 
-    @GET("/newslist")
+    @GET("newslist")
     Call<List<Article>> searchForArticles(@Query("searchString") String searchString);
 }

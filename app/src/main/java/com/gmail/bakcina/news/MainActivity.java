@@ -3,8 +3,15 @@ package com.gmail.bakcina.news;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import com.arellomobile.mvp.MvpAppCompatActivity;
 import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.gmail.bakcina.news.model.Article;
@@ -20,6 +27,9 @@ public class MainActivity extends MvpAppCompatActivity implements MainView, Arti
     private ProgressDialog progressDialog;
     AlertDialog errorAlertDialog;
     private ArticleAdapter adapter;
+    private MenuItem searchItem;
+    private Handler handler = new Handler();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +44,67 @@ public class MainActivity extends MvpAppCompatActivity implements MainView, Arti
         progressDialog = new ProgressDialog(this);
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+
+        searchItem = menu.findItem(R.id.action_search);
+
+        final android.widget.SearchView searchView = (android.widget.SearchView) searchItem.getActionView();
+
+        MenuItemCompat.setOnActionExpandListener(searchItem,
+                new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                        searchView.setIconified(false);
+                        searchView.requestFocus();
+                        return true;
+                    }
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                        Log.d("Valo","onMenuItemActionCollapse");
+                        searchView.setQuery("", false);
+                        mainPresenter.clearSearch();
+                        mainPresenter.initialLoad();
+                        return true;
+                    }
+                });
+
+        searchView.setOnQueryTextListener(new android.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchView.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.length() == 1) {
+                    mainPresenter.clearCommonList();
+                }
+
+                if (newText.length() > 2) {
+                    handler.removeCallbacksAndMessages(null);
+                    handler.postDelayed(() -> mainPresenter.searchNews(newText), 1500);
+                }
+                return true;
+            }
+        });
+
+        return true;
+    }
+
+/*    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_search) {
+            if (searchItem == null) return false;
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }*/
 
     @Override
     protected void onStart() {
@@ -53,11 +124,16 @@ public class MainActivity extends MvpAppCompatActivity implements MainView, Arti
     }
 
     @Override
-    public void showAllArticles(List<Article> data) {
-        if (data == null) return;
+    public void showAllArticles(@NonNull List<Article> data) {
 
-        adapter = new ArticleAdapter(data, this);
-        articlesRV.setAdapter(adapter);
+        if (adapter == null) {
+            adapter = new ArticleAdapter(data, this);
+            articlesRV.setAdapter(adapter);
+        } else {
+            adapter.setData(data);
+            adapter.notifyDataSetChanged();
+        }
+        Log.d("Valo", "showAllArticles, data -> " + data.size());
     }
 
     @Override

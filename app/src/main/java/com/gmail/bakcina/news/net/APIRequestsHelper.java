@@ -18,8 +18,8 @@ public final class APIRequestsHelper {
 
     public static final String BASE_URL = "https://fapi.rtvi.com/api/v1/";
     //https://fapi.rtvi.com/api/v1/newslist
-    public static final int CONNECTION_TIMEOUT = 15 * 1000;
-    public static final int READ_TIMEOUT = 30 * 1000;
+    public static final int CONNECTION_TIMEOUT = 15;
+    public static final int READ_TIMEOUT = 10;
 
     private APIRequestsHelper() {
     }
@@ -37,8 +37,8 @@ public final class APIRequestsHelper {
     private static OkHttpClient.Builder okHttpClientBuilder(){
 
         return new OkHttpClient.Builder()
-                .readTimeout(READ_TIMEOUT, TimeUnit.MILLISECONDS)
-                .connectTimeout(CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
+                .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
+                .connectTimeout(CONNECTION_TIMEOUT, TimeUnit.SECONDS)
                 .sslSocketFactory(getSSLSocketFactory())
                 .hostnameVerifier(((hostname, session) -> true))
                 .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY));

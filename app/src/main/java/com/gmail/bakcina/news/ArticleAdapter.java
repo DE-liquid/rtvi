@@ -40,7 +40,6 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
         if (item.getTitle() != null) {
             holder.titleTV.setText(item.getTitle());
         }
-        if (TextUtils.isEmpty(item.getShareLink())) return;
 
         Glide.with(holder.itemView.getContext())
                 .load(item.getImagePreview())
@@ -48,7 +47,10 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
                 .into(holder.previewIV);
 
         holder.itemView.setOnClickListener(
-                view -> articleListener.onArticleClicked(item.getId(), item.getShareLink()));
+                TextUtils.isEmpty(item.getShareLink())
+                ? null
+                : view -> articleListener.onArticleClicked(item.getId(), item.getShareLink())
+        );
     }
 
     @Override
@@ -62,9 +64,14 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ViewHold
 
         ViewHolder(final View itemView){
             super(itemView);
-            previewIV = itemView.findViewById(R.id.preview_iv);
-            titleTV = itemView.findViewById(R.id.title_tv);
+            previewIV = (ImageView) itemView.findViewById(R.id.preview_iv);
+            titleTV = (TextView )itemView.findViewById(R.id.title_tv);
         }
+    }
+
+    public void setData(List<Article> newData) {
+        this.data.clear();
+        this.data.addAll(newData);
     }
 
     public interface ArticleClickListener{
